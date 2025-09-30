@@ -119,7 +119,9 @@
         let scrollAccumulator = 0;
         let rotationSpeed = 0.005; // Base rotation speed
         let baseRotationSpeed = 0.005; // Constant base speed
-        let scrollThreshold = 15000; // Threshold to trigger transition (high value for Mac trackpad sensitivity)
+        // Detect mobile for lower threshold
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        let scrollThreshold = isMobileDevice ? 500 : 15000; // Lower threshold for mobile (3 swipes), high for desktop trackpad
         let isTextSectionVisible = false;
         let isTransitioning = false;
         let scrollEnabled = false; // Disabled until loading completes
