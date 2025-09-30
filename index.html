@@ -70,7 +70,7 @@
         } else if (isMobileDevice) {
             console.log('📱 Service Worker disabled on mobile for better performance');
         }
-        
+
         const params = {
             autoRotate: true,
             autoRotateBackground: true,
@@ -80,7 +80,7 @@
             backgroundImage: 'alien-planet.jpg',
             textureQuality: isMobileDevice ? 'medium' : 'high-mid'  // Medium for mobile, high for desktop
         };
-        
+
         // Get quality from selector on load
         const qualitySelector = document.getElementById('quality-select');
         if (qualitySelector) {
@@ -488,7 +488,7 @@
                 // Only increase speed on downward scrolls
                 if (delta > 0) {
                     lastScrollTime = performance.now(); // Update last scroll time
-                    
+
                     // Speed up rotation based on downward scrolls only
                     scrollAccumulator += delta;
                     rotationSpeed = baseRotationSpeed + (scrollAccumulator / scrollDivisor);
@@ -512,7 +512,7 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-            
+
             if (event.touches.length === 1) {
                 // One finger - track for scroll/swipe to speed up rotation
                 isSingleTouch = true;
@@ -528,26 +528,26 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-            
+
             if (event.touches.length === 1 && isSingleTouch && !isTextSectionVisible) {
                 // One finger vertical swipe - speed up rotation like scroll
                 const currentY = event.touches[0].pageY;
                 const deltaY = lastTouchY - currentY; // Positive = swipe up
-                
+
                 if (Math.abs(deltaY) > 2) { // Threshold to avoid jitter
                     // Only increase speed on downward swipes (deltaY > 0 means swiping up = scrolling down)
                     if (deltaY > 0) {
                         lastScrollTime = performance.now();
                         scrollAccumulator += Math.abs(deltaY);
                         rotationSpeed = baseRotationSpeed + (scrollAccumulator / scrollDivisor);
-                        
+
                         // Check threshold
                         if (scrollAccumulator >= scrollThreshold) {
                             showTextSection();
                         }
                     }
                 }
-                
+
                 lastTouchY = currentY;
             }
             // Two finger movement is handled by OrbitControls for panning/rotating camera
