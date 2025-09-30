@@ -248,10 +248,22 @@
             controls.enableRotate = true; // Allow manual rotation (mouse/trackpad/two-finger)
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            // Touch controls: two fingers to rotate/move camera around (one finger handled by custom touch events)
-            controls.touches = {
-                TWO: THREE.TOUCH.ROTATE // Two fingers rotate/move camera view
-            };
+            
+            // Mobile-specific touch controls
+            if (isMobileDevice) {
+                // Disable one-finger controls on mobile, let our custom handlers manage it
+                controls.touches = {
+                    TWO: THREE.TOUCH.ROTATE // Two fingers rotate/move camera view
+                };
+                controls.mouseButtons = {}; // Disable mouse controls on mobile
+                console.log('Mobile: OrbitControls configured for two-finger only');
+            } else {
+                // Desktop: normal mouse controls
+                controls.touches = {
+                    TWO: THREE.TOUCH.ROTATE
+                };
+                console.log('Desktop: OrbitControls configured normally');
+            }
 
             // Smart texture loading with USER-SELECTED quality
             const loadEnvironment = async function (imageName, isPreload = false) {
@@ -454,10 +466,13 @@
             window.addEventListener('wheel', onScroll, { passive: false });
             window.addEventListener('scroll', onScrollPosition, { passive: false });
 
-            // Touch event listeners for pinch-to-zoom
-            window.addEventListener('touchstart', onTouchStart, { passive: false });
-            window.addEventListener('touchmove', onTouchMove, { passive: false });
-            window.addEventListener('touchend', onTouchEnd, { passive: false });
+            // Touch event listeners - attach directly to canvas for mobile
+            const canvas = renderer.domElement;
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+            canvas.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+            canvas.addEventListener('touchend', onTouchEnd, { passive: false, capture: true });
+            
+            console.log('Touch events registered on canvas');
         }
 
         function onScroll(event) {
@@ -509,18 +524,26 @@
 
         // Touch event handlers
         function onTouchStart(event) {
+            console.log('Touch start:', event.touches.length, 'touches');
+            
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-
-            if (event.touches.length === 1) {
+            
+            if (event.touches.length === 1 && !isTextSectionVisible) {
                 // One finger - track for scroll/swipe to speed up rotation
+                // Prevent OrbitControls from handling this
+                event.preventDefault();
+                event.stopPropagation();
+                
                 isSingleTouch = true;
                 touchStartY = event.touches[0].pageY;
                 lastTouchY = event.touches[0].pageY;
+                console.log('One finger start at Y:', touchStartY);
             } else if (event.touches.length === 2) {
-                // Two fingers - disable one-finger tracking, let OrbitControls handle pan
+                // Two fingers - let OrbitControls handle it (don't prevent)
                 isSingleTouch = false;
+                console.log('Two fingers detected - OrbitControls will handle');
             }
         }
 
@@ -528,32 +551,42 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-
+            
             if (event.touches.length === 1 && isSingleTouch && !isTextSectionVisible) {
                 // One finger vertical swipe - speed up rotation like scroll
+                event.preventDefault();
+                event.stopPropagation();
+                
                 const currentY = event.touches[0].pageY;
                 const deltaY = lastTouchY - currentY; // Positive = swipe up
-
+                
+                console.log('Touch move deltaY:', deltaY, 'accumulator:', scrollAccumulator);
+                
                 if (Math.abs(deltaY) > 2) { // Threshold to avoid jitter
                     // Only increase speed on downward swipes (deltaY > 0 means swiping up = scrolling down)
                     if (deltaY > 0) {
                         lastScrollTime = performance.now();
                         scrollAccumulator += Math.abs(deltaY);
                         rotationSpeed = baseRotationSpeed + (scrollAccumulator / scrollDivisor);
-
+                        
+                        console.log('Speed increased:', rotationSpeed, 'threshold:', scrollThreshold);
+                        
                         // Check threshold
                         if (scrollAccumulator >= scrollThreshold) {
+                            console.log('THRESHOLD REACHED! Showing text section');
                             showTextSection();
                         }
                     }
                 }
-
+                
                 lastTouchY = currentY;
             }
             // Two finger movement is handled by OrbitControls for panning/rotating camera
         }
 
         function onTouchEnd(event) {
+            console.log('Touch end, remaining touches:', event.touches.length);
+            
             if (event.touches.length === 0) {
                 isSingleTouch = false;
             }
