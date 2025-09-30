@@ -134,6 +134,9 @@
         // Touch/pinch variables
         let initialPinchDistance = 0;
         let lastPinchDistance = 0;
+        let lastTouchY = 0;
+        let touchStartY = 0;
+        let isSingleTouch = false;
 
         init();
 
@@ -236,11 +239,15 @@
             camera.position.set(0.0, 0.0, -6.0);
 
             controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableZoom = false; // Disable OrbitControls zoom to prevent conflicts
-            controls.enablePan = false; // Disable panning for cleaner interaction
-            controls.enableRotate = true; // Allow manual rotation
+            controls.enableZoom = false; // Disable OrbitControls zoom
+            controls.enablePan = true; // Enable panning for two-finger camera movement
+            controls.enableRotate = true; // Allow manual rotation (mouse/trackpad)
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
+            // Touch controls: two fingers to pan/move camera (one finger handled by custom touch events)
+            controls.touches = {
+                TWO: THREE.TOUCH.PAN // Two fingers pan/move camera
+            };
 
             // Smart texture loading with USER-SELECTED quality
             const loadEnvironment = async function (imageName, isPreload = false) {
@@ -496,14 +503,20 @@
             }
         }
 
-        // Touch event handlers for pinch-to-zoom
+        // Touch event handlers
         function onTouchStart(event) {
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-
-            if (event.touches.length === 2) {
-                event.preventDefault();
+            
+            if (event.touches.length === 1) {
+                // One finger - track for scroll/swipe to speed up rotation
+                isSingleTouch = true;
+                touchStartY = event.touches[0].pageY;
+                lastTouchY = event.touches[0].pageY;
+            } else if (event.touches.length === 2) {
+                // Two fingers - pinch to zoom
+                isSingleTouch = false;
                 const dx = event.touches[0].pageX - event.touches[1].pageX;
                 const dy = event.touches[0].pageY - event.touches[1].pageY;
                 initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
@@ -515,26 +528,47 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-
-            if (event.touches.length === 2) {
-                event.preventDefault();
+            
+            if (event.touches.length === 1 && isSingleTouch && !isTextSectionVisible) {
+                // One finger vertical swipe - speed up rotation like scroll
+                const currentY = event.touches[0].pageY;
+                const deltaY = lastTouchY - currentY; // Positive = swipe up
+                
+                if (Math.abs(deltaY) > 2) { // Threshold to avoid jitter
+                    // Only increase speed on downward swipes (deltaY > 0 means swiping up = scrolling down)
+                    if (deltaY > 0) {
+                        lastScrollTime = performance.now();
+                        scrollAccumulator += Math.abs(deltaY);
+                        rotationSpeed = baseRotationSpeed + (scrollAccumulator / 15000);
+                        
+                        // Check threshold
+                        if (scrollAccumulator >= scrollThreshold) {
+                            showTextSection();
+                        }
+                    }
+                }
+                
+                lastTouchY = currentY;
+            } else if (event.touches.length === 2) {
+                // Two fingers - pinch to zoom
                 const dx = event.touches[0].pageX - event.touches[1].pageX;
                 const dy = event.touches[0].pageY - event.touches[1].pageY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
+                
                 // Calculate zoom based on pinch distance change
                 const delta = lastPinchDistance - distance;
                 const zoomSpeed = 0.01;
                 currentZoom += delta * zoomSpeed;
                 currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom));
                 camera.position.z = currentZoom;
-
+                
                 lastPinchDistance = distance;
             }
         }
 
         function onTouchEnd(event) {
-            if (event.touches.length < 2) {
+            if (event.touches.length === 0) {
+                isSingleTouch = false;
                 initialPinchDistance = 0;
                 lastPinchDistance = 0;
             }
