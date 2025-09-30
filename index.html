@@ -508,7 +508,7 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-            
+
             if (event.touches.length === 1) {
                 // One finger - track for scroll/swipe to speed up rotation
                 isSingleTouch = true;
@@ -528,40 +528,40 @@
             if (!scrollEnabled || isTransitioning) {
                 return;
             }
-            
+
             if (event.touches.length === 1 && isSingleTouch && !isTextSectionVisible) {
                 // One finger vertical swipe - speed up rotation like scroll
                 const currentY = event.touches[0].pageY;
                 const deltaY = lastTouchY - currentY; // Positive = swipe up
-                
+
                 if (Math.abs(deltaY) > 2) { // Threshold to avoid jitter
                     // Only increase speed on downward swipes (deltaY > 0 means swiping up = scrolling down)
                     if (deltaY > 0) {
                         lastScrollTime = performance.now();
                         scrollAccumulator += Math.abs(deltaY);
                         rotationSpeed = baseRotationSpeed + (scrollAccumulator / 15000);
-                        
+
                         // Check threshold
                         if (scrollAccumulator >= scrollThreshold) {
                             showTextSection();
                         }
                     }
                 }
-                
+
                 lastTouchY = currentY;
             } else if (event.touches.length === 2) {
                 // Two fingers - pinch to zoom
                 const dx = event.touches[0].pageX - event.touches[1].pageX;
                 const dy = event.touches[0].pageY - event.touches[1].pageY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 // Calculate zoom based on pinch distance change
                 const delta = lastPinchDistance - distance;
                 const zoomSpeed = 0.01;
                 currentZoom += delta * zoomSpeed;
                 currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom));
                 camera.position.z = currentZoom;
-                
+
                 lastPinchDistance = distance;
             }
         }
