@@ -24,7 +24,7 @@
                 <select id="quality-select">
                     <option value="low">low</option>
                     <option value="medium">medium</option>
-                    <option value="high-mid" selected>high</option>
+                    <option value="high-mid">high</option>
                     <option value="very-high">very high</option>
                     <option value="ultra">ultra</option>
                 </select>
@@ -61,6 +61,10 @@
 
         // Detect mobile early for quality settings and service worker
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log('Device detection:', {
+            isMobile: isMobileDevice,
+            userAgent: navigator.userAgent
+        });
 
         // Register service worker (disabled on mobile for better performance)
         if ('serviceWorker' in navigator && !isMobileDevice) {
@@ -81,13 +85,19 @@
             textureQuality: isMobileDevice ? 'medium' : 'high-mid'  // Medium for mobile, high for desktop
         };
 
-        // Get quality from selector on load
+        console.log('Initial quality setting:', params.textureQuality);
+
+        // Get quality from selector on load - wait for DOM to be ready
         const qualitySelector = document.getElementById('quality-select');
         if (qualitySelector) {
             qualitySelector.value = params.textureQuality;
+            console.log('Quality selector set to:', qualitySelector.value);
             qualitySelector.addEventListener('change', (e) => {
                 params.textureQuality = e.target.value;
+                console.log('Quality changed to:', e.target.value);
             });
+        } else {
+            console.error('Quality selector not found!');
         }
 
         const availableTextures = [
