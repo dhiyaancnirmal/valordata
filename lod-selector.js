@@ -19,44 +19,44 @@ export class LODSelector {
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         const effectiveType = connection ? connection.effectiveType : '4g';
 
-        // Tier calculation
-        let tier = 'medium';
-        let quality = 'medium';
+        // Tier calculation - Most modern devices default to high
+        let tier = 'high';
+        let quality = 'high-mid';
         let targetFPS = 60;
-        let targetDPR = 1.5;
+        let targetDPR = 1;
 
-        // High-end: Large GPU, lots of RAM, high DPR
-        if (maxTextureSize >= 16384 && memory >= 8 && dpr >= 2) {
+        // Ultra: Only for very high-end devices
+        if (maxTextureSize >= 16384 && memory >= 16 && dpr >= 2) {
             tier = 'ultra';
-            quality = 'very-high'; // Better quality for high-end
+            quality = 'very-high';
             targetFPS = 60;
             targetDPR = 2;
         }
-        // High: Good GPU, decent RAM
+        // High: Most modern devices (default)
         else if (maxTextureSize >= 8192 && memory >= 4) {
             tier = 'high';
-            quality = 'high-mid'; // Good balance
+            quality = 'high-mid';
             targetFPS = 60;
             targetDPR = 1.5;
         }
-        // Medium: Standard devices
-        else if (maxTextureSize >= 4096 && memory >= 2) {
+        // Medium: Older but still capable devices
+        else if (maxTextureSize >= 4096) {
             tier = 'medium';
             quality = 'medium';
             targetFPS = 60;
             targetDPR = 1;
         }
-        // Low: Older/mobile devices
+        // Low: Only for very old/limited devices
         else {
             tier = 'low';
-            quality = 'medium'; // Keep medium for decent quality
-            targetFPS = 60; // Still try for 60fps
+            quality = 'low';
+            targetFPS = 60;
             targetDPR = 1;
         }
 
         // Network consideration
         if (effectiveType === '2g' || effectiveType === 'slow-2g') {
-            quality = 'medium'; // Force medium quality on slow networks (low no longer exists)
+            quality = 'low'; // Force low quality on very slow networks
         }
 
         return {

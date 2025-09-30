@@ -36,7 +36,7 @@
 ### 5. **Multi-LOD System** ✅
 - **File**: `lod-selector.js`
 - **What it does**: Device-based quality tier selection
-- **Tiers**:
+- **Tiers**:ho
   - **Ultra**: 16K GPU + 8GB RAM + 2x DPR → High quality
   - **High**: 8K GPU + 4GB RAM → High quality
   - **Medium**: 4K GPU + 2GB RAM → Medium quality

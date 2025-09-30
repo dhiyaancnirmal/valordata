@@ -7,19 +7,16 @@ const TEXTURE_CACHE = 'valor-textures-v2';
 // Static assets - always cache
 const STATIC_CACHE_URLS = [
     '/',
-    '/webgl_loader_texture_ultrahdr.html',
+    '/index.html',
     '/main.css',
     '/valerlogo.gltf',
+    '/world-logo.svg',
     '/build/three.module.js',
-    '/jsm/libs/lil-gui.module.min.js',
-    '/jsm/loaders/UltraHDRLoader.js',
     '/jsm/loaders/GLTFLoader.js',
-    '/jsm/loaders/KTX2Loader.js',
     '/jsm/controls/OrbitControls.js',
-    '/jsm/libs/basis/basis_transcoder.js',
-    '/jsm/libs/basis/basis_transcoder.wasm',
     '/texture-worker.js',
-    '/pmrem-cache.js'
+    '/pmrem-cache.js',
+    '/lod-selector.js'
 ];
 
 // Install - cache static assets
@@ -56,6 +53,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
+    // Skip non-http/https requests
+    if (!url.protocol.startsWith('http')) {
+        return;
+    }
+
     // Texture files - cache-first with long TTL
     if (url.pathname.includes('/textures/') ||
         url.pathname.endsWith('.ktx2') ||
@@ -66,17 +68,17 @@ self.addEventListener('fetch', (event) => {
             caches.open(TEXTURE_CACHE).then((cache) => {
                 return cache.match(event.request).then((response) => {
                     if (response) {
-                        console.log(`🎨 Texture cache HIT: ${url.pathname}`);
                         return response;
                     }
 
                     // Fetch and cache
                     return fetch(event.request).then((networkResponse) => {
                         if (networkResponse && networkResponse.status === 200) {
-                            console.log(`📥 Caching texture: ${url.pathname}`);
                             cache.put(event.request, networkResponse.clone());
                         }
                         return networkResponse;
+                    }).catch(() => {
+                        return new Response('Texture not found', { status: 404 });
                     });
                 });
             })
@@ -88,7 +90,9 @@ self.addEventListener('fetch', (event) => {
     if (STATIC_CACHE_URLS.includes(url.pathname)) {
         event.respondWith(
             caches.match(event.request).then((response) => {
-                return response || fetch(event.request);
+                return response || fetch(event.request).catch(() => {
+                    return new Response('Not found', { status: 404 });
+                });
             })
         );
         return;
@@ -97,7 +101,9 @@ self.addEventListener('fetch', (event) => {
     // Everything else - network-first
     event.respondWith(
         fetch(event.request).catch(() => {
-            return caches.match(event.request);
+            return caches.match(event.request).then((response) => {
+                return response || new Response('Not found', { status: 404 });
+            });
         })
     );
 });

@@ -261,3 +261,4 @@ aws s3 sync textures/processed/ s3://your-bucket/textures/processed/ \
 ---
 
 **Note**: This is Step 1 of the texture optimization pipeline. The client-side integration will follow in subsequent steps.
+

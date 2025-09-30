@@ -70,50 +70,45 @@
 
 /* Quality Selector */
 #quality-selector {
-	margin-top: 40px;
+	margin-top: 30px;
 	text-align: center;
 }
 
 #quality-selector label {
-	font-family: "Electromagnetic Lungs", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 1.2rem;
-	color: #ffffff;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 0.85rem;
+	color: rgba(255, 255, 255, 0.5);
 	display: block;
-	margin-bottom: 15px;
-	letter-spacing: 2px;
-	text-transform: uppercase;
+	margin-bottom: 10px;
+	letter-spacing: 1px;
 }
 
 #quality-select {
-	font-family: "Electromagnetic Lungs", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 1.1rem;
-	padding: 12px 24px;
-	background: rgba(255, 255, 255, 0.05);
-	color: #ffffff;
-	border: 2px solid rgba(255, 255, 255, 0.2);
-	border-radius: 0;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 0.9rem;
+	padding: 8px 16px;
+	background: rgba(255, 255, 255, 0.03);
+	color: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 2px;
 	cursor: pointer;
-	transition: all 0.3s ease;
-	letter-spacing: 1px;
-	min-width: 200px;
+	transition: all 0.2s ease;
+	min-width: 150px;
 }
 
 #quality-select:hover {
-	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(255, 255, 255, 0.4);
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.25);
 }
 
 #quality-select:focus {
 	outline: none;
-	border-color: rgba(255, 255, 255, 0.6);
-	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.3);
 }
 
 #quality-select option {
 	background: #000000;
 	color: #ffffff;
-	font-family: "Electromagnetic Lungs", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	padding: 10px;
 }
 
 body {
