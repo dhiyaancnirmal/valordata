@@ -18,6 +18,9 @@ export class LODSelector {
         const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         const effectiveType = connection ? connection.effectiveType : '4g';
+        
+        // Detect if mobile/tablet
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         // Tier calculation - Most modern devices default to high
         let tier = 'high';
@@ -54,6 +57,13 @@ export class LODSelector {
             targetDPR = 1;
         }
 
+        // Mobile/Phone override - use medium quality for better performance and battery
+        if (isMobile) {
+            quality = 'medium';
+            tier = 'medium';
+            targetDPR = 1;
+        }
+
         // Network consideration
         if (effectiveType === '2g' || effectiveType === 'slow-2g') {
             quality = 'low'; // Force low quality on very slow networks
@@ -67,7 +77,8 @@ export class LODSelector {
             memory: memory,
             network: effectiveType,
             targetFPS: targetFPS,
-            targetDPR: targetDPR
+            targetDPR: targetDPR,
+            isMobile: isMobile
         };
     }
 
