@@ -87,18 +87,20 @@
 
         console.log('Initial quality setting:', params.textureQuality);
 
-        // Get quality from selector on load - wait for DOM to be ready
-        const qualitySelector = document.getElementById('quality-select');
-        if (qualitySelector) {
-            qualitySelector.value = params.textureQuality;
-            console.log('Quality selector set to:', qualitySelector.value);
-            qualitySelector.addEventListener('change', (e) => {
-                params.textureQuality = e.target.value;
-                console.log('Quality changed to:', e.target.value);
-            });
-        } else {
-            console.error('Quality selector not found!');
-        }
+        // Set quality selector after DOM loads
+        window.addEventListener('DOMContentLoaded', () => {
+            const qualitySelector = document.getElementById('quality-select');
+            if (qualitySelector) {
+                qualitySelector.value = params.textureQuality;
+                console.log('✅ Quality selector set to:', qualitySelector.value, 'on', isMobileDevice ? 'mobile' : 'desktop');
+                qualitySelector.addEventListener('change', (e) => {
+                    params.textureQuality = e.target.value;
+                    console.log('Quality manually changed to:', e.target.value);
+                });
+            } else {
+                console.error('❌ Quality selector not found!');
+            }
+        });
 
         const availableTextures = [
             "aerial-mountain.jpg", "alien-planet.jpg", "bridge.jpg",
