@@ -59,13 +59,18 @@
         import { PMREMCache } from './pmrem-cache.js';
         import { LODSelector } from './lod-selector.js';
 
-        // Register service worker
-        if ('serviceWorker' in navigator) {
+        // Detect mobile early for quality settings and service worker
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Register service worker (disabled on mobile for better performance)
+        if ('serviceWorker' in navigator && !isMobileDevice) {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 console.log('✅ Service Worker registered');
             });
+        } else if (isMobileDevice) {
+            console.log('📱 Service Worker disabled on mobile for better performance');
         }
-
+        
         const params = {
             autoRotate: true,
             autoRotateBackground: true,
@@ -73,9 +78,9 @@
             roughness: 0.0,
             exposure: 1.0,
             backgroundImage: 'alien-planet.jpg',
-            textureQuality: 'high-mid'  // High quality default for modern devices
+            textureQuality: isMobileDevice ? 'medium' : 'high-mid'  // Medium for mobile, high for desktop
         };
-
+        
         // Get quality from selector on load
         const qualitySelector = document.getElementById('quality-select');
         if (qualitySelector) {
@@ -119,9 +124,8 @@
         let scrollAccumulator = 0;
         let rotationSpeed = 0.005; // Base rotation speed
         let baseRotationSpeed = 0.005; // Constant base speed
-        // Detect mobile for lower threshold
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         let scrollThreshold = isMobileDevice ? 500 : 15000; // Lower threshold for mobile (3 swipes), high for desktop trackpad
+        let scrollDivisor = isMobileDevice ? 3000 : 15000; // Faster speed increase on mobile
         let isTextSectionVisible = false;
         let isTransitioning = false;
         let scrollEnabled = false; // Disabled until loading completes
@@ -486,10 +490,10 @@
                 // Only increase speed on downward scrolls
                 if (delta > 0) {
                     lastScrollTime = performance.now(); // Update last scroll time
-
+                    
                     // Speed up rotation based on downward scrolls only
                     scrollAccumulator += delta;
-                    rotationSpeed = baseRotationSpeed + (scrollAccumulator / 15000); // Slower speed increase per scroll
+                    rotationSpeed = baseRotationSpeed + (scrollAccumulator / scrollDivisor);
 
                     // Check if threshold is reached
                     if (scrollAccumulator >= scrollThreshold) {
@@ -535,21 +539,21 @@
                 // One finger vertical swipe - speed up rotation like scroll
                 const currentY = event.touches[0].pageY;
                 const deltaY = lastTouchY - currentY; // Positive = swipe up
-
+                
                 if (Math.abs(deltaY) > 2) { // Threshold to avoid jitter
                     // Only increase speed on downward swipes (deltaY > 0 means swiping up = scrolling down)
                     if (deltaY > 0) {
                         lastScrollTime = performance.now();
                         scrollAccumulator += Math.abs(deltaY);
-                        rotationSpeed = baseRotationSpeed + (scrollAccumulator / 15000);
-
+                        rotationSpeed = baseRotationSpeed + (scrollAccumulator / scrollDivisor);
+                        
                         // Check threshold
                         if (scrollAccumulator >= scrollThreshold) {
                             showTextSection();
                         }
                     }
                 }
-
+                
                 lastTouchY = currentY;
             } else if (event.touches.length === 2) {
                 // Two fingers - pinch to zoom
