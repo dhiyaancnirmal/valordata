@@ -139,7 +139,7 @@
         let rotationSpeed = 0.005; // Base rotation speed
         let baseRotationSpeed = 0.005; // Constant base speed
         let scrollThreshold = isMobileDevice ? 500 : 15000; // Lower threshold for mobile (3 swipes), high for desktop trackpad
-        let scrollDivisor = isIOS ? 800 : (isMobileDevice ? 3000 : 15000); // Much faster speed increase on iPhone
+        let scrollDivisor = isIOS ? 200 : (isMobileDevice ? 1200 : 15000); // Aggressive speed increase on iPhone/mobile
         let isTextSectionVisible = false;
         let isTransitioning = false;
         let scrollEnabled = false; // Disabled until loading completes
