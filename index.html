@@ -282,7 +282,7 @@
             // Mobile/desktop-specific touch controls
             if (isMobileDevice) {
                 // iPhone/iOS: two-finger pan moves camera; pinch zoom disabled
-                controls.enableZoom = true;  // Enable zoom for DOLLY_PAN to work
+                controls.enableZoom = true;   // Enable zoom for DOLLY_PAN to work
                 controls.enablePan = true;
                 controls.enableRotate = false; // Keep rotation off for one-finger to avoid conflict with swipe speed control
                 controls.screenSpacePanning = true;
@@ -290,9 +290,10 @@
                     ONE: THREE.TOUCH.NONE,      // Disable one-finger touch to avoid conflict
                     TWO: THREE.TOUCH.DOLLY_PAN  // Two-finger pan for camera movement
                 };
-                // Disable zoom through min/max distance to effectively disable zoom
-                controls.minDistance = controls.maxDistance = 6.0;
-                console.log('📱 Mobile: Two-finger PAN enabled, one-finger disabled, zoom effectively disabled');
+                // Disable zoom by setting min/max distance to the same value
+                controls.minDistance = 6.0;
+                controls.maxDistance = 6.0;
+                console.log('📱 Mobile: Two-finger PAN enabled, one-finger disabled, zoom disabled via distance');
             } else {
                 // Desktop: normal mouse controls
                 controls.touches = {
