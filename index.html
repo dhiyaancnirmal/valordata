@@ -287,12 +287,14 @@
                 controls.enableRotate = false; // Keep rotation off for one-finger to avoid conflict with swipe speed control
                 controls.screenSpacePanning = true;
                 controls.touches = {
-                    TWO: THREE.TOUCH.PAN
+                    ONE: THREE.TOUCH.NONE,  // Disable one-finger touch to avoid conflict
+                    TWO: THREE.TOUCH.PAN    // Two-finger pan for camera movement
                 };
-                console.log('📱 Mobile: Two-finger PAN enabled, pinch-to-zoom disabled');
+                console.log('📱 Mobile: Two-finger PAN enabled, one-finger disabled, pinch-to-zoom disabled');
             } else {
                 // Desktop: normal mouse controls
                 controls.touches = {
+                    ONE: THREE.TOUCH.ROTATE,
                     TWO: THREE.TOUCH.ROTATE
                 };
                 console.log('💻 Desktop: OrbitControls enabled');
@@ -503,7 +505,7 @@
             window.addEventListener('wheel', onScroll, { passive: false });
             window.addEventListener('scroll', onScrollPosition, { passive: false });
 
-            // Touch event listeners - attach to document for better mobile support
+            // Touch event listeners - only for single finger scroll detection
             if (isMobileDevice) {
                 document.addEventListener('touchstart', onTouchStart, { passive: false });
                 document.addEventListener('touchmove', onTouchMove, { passive: false });
@@ -559,7 +561,7 @@
             }
         }
 
-        // Touch event handlers
+        // Touch event handlers - only for single finger scroll detection
         function onTouchStart(event) {
             console.log('🔵 Touch start:', event.touches.length, 'touches, scrollEnabled:', scrollEnabled);
 
@@ -572,13 +574,15 @@
 
                 // Don't prevent default here - let it scroll naturally at first
             } else if (event.touches.length === 2) {
-                // Two fingers - let OrbitControls handle it
+                // Two fingers - let OrbitControls handle it completely
                 isSingleTouch = false;
-                console.log('✌️ Two fingers - OrbitControls active');
+                console.log('✌️ Two fingers - OrbitControls active, not interfering');
+                // Don't prevent default - let OrbitControls handle it
             }
         }
 
         function onTouchMove(event) {
+            // Only handle single finger gestures, let OrbitControls handle two-finger
             if (event.touches.length === 1 && isSingleTouch && scrollEnabled && !isTransitioning && !isTextSectionVisible) {
                 // One finger vertical swipe - speed up rotation like scroll
                 const currentY = event.touches[0].pageY;
@@ -605,6 +609,10 @@
                 }
 
                 lastTouchY = currentY;
+            } else if (event.touches.length === 2) {
+                // Two fingers - let OrbitControls handle it, don't interfere
+                isSingleTouch = false;
+                // Don't prevent default - let OrbitControls handle panning
             }
         }
 
