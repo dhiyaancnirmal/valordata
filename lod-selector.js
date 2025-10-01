@@ -15,9 +15,23 @@ export class LODSelector {
         const gl = this.renderer.getContext();
         const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         const dpr = window.devicePixelRatio || 1;
-        const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        const effectiveType = connection ? connection.effectiveType : '4g';
+        
+        // Safe memory detection with fallbacks
+        let memory = 4; // Default fallback
+        try {
+            memory = navigator.deviceMemory || 4;
+        } catch (e) {
+            console.log('deviceMemory not available, using fallback');
+        }
+        
+        // Safe connection detection with fallbacks
+        let effectiveType = '4g';
+        try {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            effectiveType = connection ? connection.effectiveType : '4g';
+        } catch (e) {
+            console.log('connection API not available, using fallback');
+        }
         
         // Detect if mobile/tablet
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);

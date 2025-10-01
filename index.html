@@ -172,8 +172,21 @@
             });
 
             // Initialize LOD selector FIRST (before using it!)
-            lodSelector = new LODSelector(renderer);
-            selectedQuality = lodSelector.deviceTier.quality; // Set auto-detected quality
+            try {
+                lodSelector = new LODSelector(renderer);
+                selectedQuality = lodSelector.deviceTier.quality; // Set auto-detected quality
+                console.log('✅ LOD Selector initialized successfully');
+            } catch (error) {
+                console.error('❌ LOD Selector failed, using fallback:', error);
+                // Fallback to medium quality if LOD selector fails
+                selectedQuality = 'medium';
+                lodSelector = {
+                    deviceTier: {
+                        quality: 'medium',
+                        targetDPR: 1
+                    }
+                };
+            }
             pmremCache = new PMREMCache(renderer, 2, THREE); // Reduce cache from 5 to 2!
 
             // Now setup renderer with device-adaptive settings
