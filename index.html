@@ -510,11 +510,10 @@
 
             // Touch event listeners - only for single finger scroll detection
             if (isMobileDevice) {
-                // Temporarily disable custom touch handlers to let OrbitControls handle everything
-                // document.addEventListener('touchstart', onTouchStart, { passive: false });
-                // document.addEventListener('touchmove', onTouchMove, { passive: false });
-                // document.addEventListener('touchend', onTouchEnd, { passive: false });
-                console.log('✅ Mobile touch events disabled - letting OrbitControls handle everything');
+                document.addEventListener('touchstart', onTouchStart, { passive: false });
+                document.addEventListener('touchmove', onTouchMove, { passive: false });
+                document.addEventListener('touchend', onTouchEnd, { passive: false });
+                console.log('✅ Mobile touch events registered on document');
             }
         }
 
