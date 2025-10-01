@@ -89,9 +89,12 @@
 
         console.log('Initial quality setting:', params.textureQuality);
 
+        // Declare qualitySelector globally so it can be used in preloadInitialScenes
+        let qualitySelector;
+
         // Set quality selector after DOM loads
         window.addEventListener('DOMContentLoaded', () => {
-            const qualitySelector = document.getElementById('quality-select');
+            qualitySelector = document.getElementById('quality-select');
             if (qualitySelector) {
                 qualitySelector.value = params.textureQuality;
                 console.log('✅ Quality selector set to:', qualitySelector.value, 'on', isMobileDevice ? 'mobile' : 'desktop');
@@ -436,8 +439,12 @@
                 remainingScenes = availableTextures.filter(t => !initialScenes.includes(t));
                 console.log(`🎬 Preloading ${initialScenes.length} scenes for memory efficiency...`);
 
-                // Update quality from selector before loading
-                params.textureQuality = qualitySelector.value;
+                // Update quality from selector before loading (with fallback)
+                if (qualitySelector) {
+                    params.textureQuality = qualitySelector.value;
+                } else {
+                    console.log('Quality selector not ready, using current params.textureQuality:', params.textureQuality);
+                }
 
                 for (let i = 0; i < initialScenes.length; i++) {
                     const sceneName = initialScenes[i];
