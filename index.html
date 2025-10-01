@@ -293,7 +293,7 @@
                 // Disable zoom by setting min/max distance to the same value
                 controls.minDistance = 6.0;
                 controls.maxDistance = 6.0;
-                console.log('📱 Mobile: Two-finger PAN enabled, one-finger disabled, zoom disabled via distance');
+                console.log('📱 Mobile: Two-finger DOLLY_PAN enabled, one-finger disabled, zoom disabled via distance');
             } else {
                 // Desktop: normal mouse controls
                 controls.touches = {
@@ -510,10 +510,11 @@
 
             // Touch event listeners - only for single finger scroll detection
             if (isMobileDevice) {
-                document.addEventListener('touchstart', onTouchStart, { passive: false });
-                document.addEventListener('touchmove', onTouchMove, { passive: false });
-                document.addEventListener('touchend', onTouchEnd, { passive: false });
-                console.log('✅ Mobile touch events registered on document');
+                // Temporarily disable custom touch handlers to let OrbitControls handle everything
+                // document.addEventListener('touchstart', onTouchStart, { passive: false });
+                // document.addEventListener('touchmove', onTouchMove, { passive: false });
+                // document.addEventListener('touchend', onTouchEnd, { passive: false });
+                console.log('✅ Mobile touch events disabled - letting OrbitControls handle everything');
             }
         }
 
